@@ -1,0 +1,5 @@
+.env
+
+processed_messages.csv
+
+/.ipynb_checkpoints
