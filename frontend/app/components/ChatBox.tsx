@@ -52,7 +52,7 @@ const ChatBox: React.FC = () => {
   return (
     <Card className="max-w-lg mx-auto space-y-4 p-4 bg-white shadow-md">
       <CardHeader className="text-xl font-bold text-center">
-        Chat with LLM
+        Chat with Tom
       </CardHeader>
 
       <CardContent className="overflow-y-auto max-h-80 space-y-4">

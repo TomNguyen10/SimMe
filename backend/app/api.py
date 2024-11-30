@@ -1,20 +1,25 @@
 from fastapi import APIRouter, HTTPException
 from .models import CustomRequest, CustomResponse
-from .config import LLM_API_URL, TIMEOUT
+from .config import LLM_API_URL, TIMEOUT, LOCAL_LLM
 import httpx
 import logging
 import traceback
+
 
 logging.basicConfig(level=logging.INFO)
 
 router = APIRouter()
 
+local_llm = LOCAL_LLM
+
 
 @router.post("/custom_generate", response_model=CustomResponse)
 async def custom_generate(request: CustomRequest):
+    prompt_with_context = f"{local_llm}\n{request.prompt}"
+
     llm_payload = {
         "model": request.model,
-        "prompt": request.prompt,
+        "prompt": prompt_with_context,
         "stream": request.stream,
     }
 
