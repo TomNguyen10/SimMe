@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,10 +18,42 @@ interface Message {
   text: string;
 }
 
-const ChatBox: React.FC = () => {
+interface ChatBoxProps {
+  isLoggedIn: boolean;
+  username: string;
+}
+
+const ChatBox: React.FC<ChatBoxProps> = ({ isLoggedIn, username }) => {
   const [prompt, setPrompt] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      sendInitialMessage();
+    }
+  }, [isLoggedIn]);
+
+  const sendInitialMessage = async () => {
+    const initialMessage = `Hello, it's ${username}`;
+    try {
+      setLoading(true);
+      const responseText = await generateResponse(
+        initialMessage,
+        isLoggedIn,
+        username
+      );
+
+      setMessages([
+        { id: Date.now(), type: "user", text: initialMessage },
+        { id: Date.now() + 1, type: "bot", text: responseText },
+      ]);
+    } catch (err) {
+      console.error("Failed to send initial message:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!prompt.trim()) return;
@@ -32,8 +64,8 @@ const ChatBox: React.FC = () => {
     setLoading(true);
 
     try {
-      const responseText = await generateResponse(prompt);
-      console.log("Received response text:", responseText); // Debugging: log response text
+      const responseText = await generateResponse(prompt, isLoggedIn, username);
+      console.log("Received response text:", responseText);
 
       const botMessage: Message = {
         id: Date.now() + 1,
@@ -41,7 +73,7 @@ const ChatBox: React.FC = () => {
         text: responseText,
       };
       setMessages((prevMessages) => [...prevMessages, botMessage]);
-      console.log("Updated messages array:", messages); // Debugging: check messages array
+      console.log("Updated messages array:", messages);
     } catch (err) {
       console.error("Failed to get a response:", err);
     } finally {
