@@ -1,21 +1,32 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
 from .models import CustomRequest, CustomResponse
-from .config import LLM_API_URL, TIMEOUT, LOCAL_LLM
+from .config import LLM_API_URL, TIMEOUT, GENERAL_LLM, FRIEND_LLM, OPENAI_API_KEY
 import httpx
 import logging
+import os
+import openai
 import traceback
-
 
 logging.basicConfig(level=logging.INFO)
 
 router = APIRouter()
 
-local_llm = LOCAL_LLM
+general_llm = GENERAL_LLM
+friend_llm = FRIEND_LLM
+
+openai.api_key = OPENAI_API_KEY
 
 
 @router.post("/custom_generate", response_model=CustomResponse)
 async def custom_generate(request: CustomRequest):
-    prompt_with_context = f"{local_llm}\n{request.prompt}"
+    if request.isLoggedIn:
+        base_prompt = friend_llm
+        context = f"You are talking to {request.username}, who is a friend."
+    else:
+        base_prompt = general_llm
+        context = "You are talking to a stranger."
+
+    prompt_with_context = f"{base_prompt}\n{context}\n{request.prompt}"
 
     llm_payload = {
         "model": request.model,
@@ -44,3 +55,23 @@ async def custom_generate(request: CustomRequest):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
     return CustomResponse(result=llm_response.get("response", "No result returned"))
+
+
+@router.post("/transcribe")
+async def transcribe_audio(file: UploadFile = File(...)):
+    try:
+        with open(file.filename, "wb") as buffer:
+            buffer.write(await file.read())
+
+        with open(file.filename, "rb") as audio_file:
+            transcription = openai.Audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file
+            )
+
+        os.remove(file.filename)
+
+        return {"transcription": transcription["text"]}
+    except Exception as e:
+        logging.error(f"Error during transcription: {str(e)}")
+        raise HTTPException(status_code=500, detail="Transcription failed")

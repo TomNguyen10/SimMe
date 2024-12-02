@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import ChatBox from "./components/ChatBox";
 import LoginForm from "./components/LoginForm";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,16 @@ export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [isLoginVisible, setIsLoginVisible] = useState(false);
+  const chatBoxRef = useRef<{ clearChat: () => void } | null>(null);
+
+  const backdoor_name = process.env.NEXT_PUBLIC_BACKDOOR_NAME;
+  const backdoor_password = process.env.NEXT_PUBLIC_BACKDOOR_PASSWORD;
 
   const handleLogin = (enteredUsername: string, enteredPassword: string) => {
-    if (enteredUsername === "John Doe" && enteredPassword === "321") {
+    if (
+      enteredUsername === backdoor_name &&
+      enteredPassword === backdoor_password
+    ) {
       setIsLoggedIn(true);
       setUsername(enteredUsername);
       setIsLoginVisible(false);
@@ -23,6 +30,9 @@ export default function HomePage() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUsername("");
+    if (chatBoxRef.current) {
+      chatBoxRef.current.clearChat();
+    }
   };
 
   const toggleLoginForm = () => {
@@ -46,7 +56,7 @@ export default function HomePage() {
           </Button>
         </div>
       )}
-      <ChatBox isLoggedIn={isLoggedIn} username={username} />
+      <ChatBox ref={chatBoxRef} isLoggedIn={isLoggedIn} username={username} />
     </main>
   );
 }
