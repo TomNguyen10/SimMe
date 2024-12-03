@@ -54,14 +54,9 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 required
               />
             </CardContent>
-            <CardFooter className="flex flex-col">
+            <CardFooter>
               <Button type="submit" className="w-full bg-blue-600 text-white">
                 Log In
-              </Button>
-              <Button
-                onClick={() => alert("Facebook OAuth to be implemented")}
-                className="w-full bg-blue-600 text-white mt-2">
-                Log in with Facebook
               </Button>
             </CardFooter>
           </form>
