@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from .models import CustomRequest, CustomResponse
-from .config import LLM_API_URL, TIMEOUT, LOCAL_LLM
+from .config import LLM_API_URL, TIMEOUT, GENERAL_LLM, FRIEND_LLM
 import httpx
 import logging
 import traceback
@@ -10,12 +10,20 @@ logging.basicConfig(level=logging.INFO)
 
 router = APIRouter()
 
-local_llm = LOCAL_LLM
+general_llm = GENERAL_LLM
+friend_llm = FRIEND_LLM
 
 
 @router.post("/custom_generate", response_model=CustomResponse)
 async def custom_generate(request: CustomRequest):
-    prompt_with_context = f"{local_llm}\n{request.prompt}"
+    if request.isLoggedIn:
+        base_prompt = friend_llm
+        context = f"You are talking to {request.username}, who is a friend."
+    else:
+        base_prompt = general_llm
+        context = "You are talking to a stranger."
+
+    prompt_with_context = f"{base_prompt}\n{context}\n{request.prompt}"
 
     llm_payload = {
         "model": request.model,

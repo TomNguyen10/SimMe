@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 
 import { generateResponse } from "../../services/api";
+import AudioRecorder from "./AudioRecorder";
 
 interface Message {
   id: number;
@@ -81,6 +82,10 @@ const ChatBox: React.FC<ChatBoxProps> = ({ isLoggedIn, username }) => {
     }
   };
 
+  const handleTranscript = (transcript: string) => {
+    setPrompt(transcript);
+  };
+
   return (
     <Card className="max-w-lg mx-auto space-y-4 p-4 bg-white shadow-md">
       <CardHeader className="text-xl font-bold text-center">
@@ -104,6 +109,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({ isLoggedIn, username }) => {
             </div>
           </div>
         ))}
+        {prompt && (
+          <div className="text-right">
+            <div className="inline-block p-2 rounded-lg bg-blue-200 text-black">
+              {prompt}
+            </div>
+          </div>
+        )}
       </CardContent>
 
       <CardFooter className="flex items-center space-x-2">
@@ -113,6 +125,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ isLoggedIn, username }) => {
           placeholder="Type a message"
           className="flex-grow"
         />
+        <AudioRecorder onTranscript={handleTranscript} />
         <Button
           onClick={handleSendMessage}
           disabled={loading}
