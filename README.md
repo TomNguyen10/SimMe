@@ -191,7 +191,9 @@ SimMe/
 ├── frontend/           # Next.js frontend application
 ├── backend/           # FastAPI backend server
 ├── model.ipynb       # Model architecture and training
-└── data_pipelines.ipynb  # Data processing and preparation
+├── data_pipelines.ipynb  # Data processing and preparation
+├── train.ipynb       # Training implementation and execution
+└── conversation_testing.ipynb  # Model evaluation and testing
 ```
 
 ## 🛠️ Technologies Used
@@ -232,6 +234,69 @@ This project emphasizes privacy and data security:
 - Personal information is anonymized
 - Sensitive data is excluded from training
 - Model outputs are filtered for privacy preservation
+
+## 🧪 Training and Testing
+
+### Training Implementation (`train.ipynb`)
+
+The training notebook implements the fine-tuning process with the following key features:
+
+1. **Model Setup**:
+
+   - Uses Meta's Llama-3.1-8B as the base model
+   - Implements LoRA (Low-Rank Adaptation) for efficient fine-tuning
+   - Configures 8-bit quantization for memory efficiency
+
+2. **Training Configuration**:
+
+   - LoRA Parameters:
+     - Alpha: 64
+     - Rank: 32
+     - Dropout: 0.1
+   - Training Parameters:
+     - Batch Size: 1
+     - Gradient Accumulation Steps: 4
+     - Learning Rate: 2e-4
+     - Weight Decay: 0.001
+   - Target Modules: ["q_proj", "v_proj", "k_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+
+3. **Training Process**:
+   - Implements SFT (Supervised Fine-Tuning) using TRL library
+   - Uses cosine learning rate scheduler
+   - Saves checkpoints every 500 steps
+   - Evaluates model every 1000 steps
+
+### Conversation Testing (`conversation_testing.ipynb`)
+
+The testing notebook provides comprehensive evaluation of the fine-tuned model:
+
+1. **Testing Setup**:
+
+   - Loads the fine-tuned model from HuggingFace Hub
+   - Configures inference pipeline
+   - Sets up Weights & Biases for experiment tracking
+
+2. **Evaluation Features**:
+
+   - Real-time conversation testing
+   - Response quality assessment
+   - Style consistency verification
+   - Context preservation analysis
+   - Performance metrics tracking
+
+3. **Testing Metrics**:
+
+   - Response time measurement
+   - Memory usage monitoring
+   - GPU utilization tracking
+   - Quality metrics calculation
+   - Error rate analysis
+
+4. **Integration with Weights & Biases**:
+   - Real-time training visualization
+   - Model checkpoint tracking
+   - Performance metric logging
+   - Experiment comparison capabilities
 
 ## 👥 Author
 
